@@ -1,11 +1,4 @@
 #!/bin/bash
-#
-# Rewrites git history of this repo to only
-# include the current files.  Permanently removes
-# deleted files.
-#
-# Derived from http://stackoverflow.com/a/17909526/407845
-#
 
 set -e # exit on first error
 COMMAND=$1

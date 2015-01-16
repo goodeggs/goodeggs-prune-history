@@ -2,7 +2,6 @@
 
 Commands to rewrite git history preserving only current files. Derived from http://stackoverflow.com/a/17909526/407845.
 
-[![NPM version](http://img.shields.io/npm/v/goodeggs-prune-history.svg?style=flat-square)](https://www.npmjs.org/package/goodeggs-prune-history)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/goodeggs/goodeggs-prune-history/blob/master/LICENSE.md)
 
 ## Usage
@@ -14,6 +13,8 @@ npm install -g goodeggs-prune-history
 ```sh
 $ prune-history [rewrite|clean]
 ```
+
+Use clean after a successful rewrite to delete orphaned history.
 
 ## Contributing
 
