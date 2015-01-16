@@ -11,5 +11,9 @@
   "bugs": "https://github.com/goodeggs/goodeggs-prune-history/issues",
   "bin": {
     "prune-history": "bin/prune-history.sh"
+  },
+  "publishConfig": {
+    "registry": "https://goodeggs.registry.nodejitsu.com/",
+    "always-auth": true
   }
 }
