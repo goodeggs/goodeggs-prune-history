@@ -11,10 +11,12 @@ npm install -g goodeggs-prune-history
 ```
 
 ```sh
-$ prune-history [rewrite|clean]
+$ prune-history [truncate|rewrite|clean]
 ```
 
-Use clean after a successful rewrite to delete orphaned history.
+Use `clean` after a successful `rewrite` to delete orphaned history.
+
+Use `truncate` to orphan old commits.  Only updates master.
 
 ## Contributing
 
