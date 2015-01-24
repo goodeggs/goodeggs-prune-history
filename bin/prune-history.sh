@@ -3,6 +3,11 @@
 set -e # exit on first error
 COMMAND=$1
 
+repostats () {
+  git count-objects -vH
+  echo "commits: $(git rev-list HEAD --count)"
+}
+
 if [ ! -f 'package.json' ]; then
   echo "Must be run from the root of a repo"
   exit 1
@@ -23,11 +28,11 @@ if [ "$COMMAND" = 'truncate' ]; then
 
   # Orphan older commits with rebase
   ORPHAN_COMMIT=`echo "Truncated history before ${TRUNCATE_COMMIT}" | git commit-tree ${TRUNCATE_COMMIT}^{tree}`
-  git rebase --onto $ORPHAN_COMMIT $TRUNCATE_COMMIT -X ours
+  git rebase -s ours --onto $ORPHAN_COMMIT $TRUNCATE_COMMIT
 
   echo
   echo "After truncate:"
-  git count-objects -vH
+  repostats
 
 elif [ "$COMMAND" = 'rewrite' ]; then
   # Derived from http://stackoverflow.com/a/17909526/407845.
@@ -39,16 +44,27 @@ elif [ "$COMMAND" = 'rewrite' ]; then
   fi
 
   echo "Before:"
-  git count-objects -vH
+  repostats
 
+  # Remove orzo commits
+  git filter-branch -f --commit-filter '
+    if [ `git rev-list --all --grep "\[orzo\]" | grep -c "$GIT_COMMIT"` -gt 0 ]
+    then
+      skip_commit "$@";
+    else
+      git commit-tree "$@";
+    fi
+  ' -- --all
+
+  # Remove deleted files from commits
   git ls-files > keep-these.txt
-  git filter-branch --index-filter \
-    "git rm  --ignore-unmatch --cached -qr . ; \
-    cat $PWD/keep-these.txt | xargs git reset -q \$GIT_COMMIT --" \
-    --prune-empty --tag-name-filter cat -- --all
+  git filter-branch -f --index-filter " \
+    git rm  --ignore-unmatch --cached -qr . ; \
+    cat $PWD/keep-these.txt | xargs git reset -q \$GIT_COMMIT -- \
+  " --prune-empty  -- --all
 
   echo "After rewrite:"
-  git count-objects -vH
+  repostats
 
 elif [ "$COMMAND" = 'clean' ]; then
   rm -rf .git/refs/original/
@@ -57,7 +73,7 @@ elif [ "$COMMAND" = 'clean' ]; then
 
 
   echo "After clean:"
-  git count-objects -vH
+  repostats
 
 else
   echo
