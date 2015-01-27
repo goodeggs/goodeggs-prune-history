@@ -3,11 +3,6 @@
 set -e # exit on first error
 COMMAND=$1
 
-repostats () {
-  git count-objects -vH
-  echo "commits: $(git rev-list HEAD --count)"
-}
-
 if [ "$COMMAND" = 'truncate' ]; then
   # Inspired by http://git-scm.com/2010/03/17/replace.html
   git co -b temp
@@ -27,7 +22,7 @@ if [ "$COMMAND" = 'truncate' ]; then
 
   echo
   echo "After truncate:"
-  repostats
+  prune-history stat
 
 elif [ "$COMMAND" = 'rewrite' ]; then
   # Derived from http://stackoverflow.com/a/17909526/407845.
@@ -38,7 +33,7 @@ elif [ "$COMMAND" = 'rewrite' ]; then
   fi
 
   echo "Before:"
-  repostats
+  prune-history stat
 
   # Record most recent commit so we can update later
   SOURCE_COMMIT=`git rev-list -1 master`
@@ -68,7 +63,7 @@ elif [ "$COMMAND" = 'rewrite' ]; then
   echo $SOURCE_COMMIT > 'filter_branch_old_master.txt'
 
   echo "After rewrite:"
-  repostats
+  prune-history stat
 
 elif [ "$COMMAND" = 'update' ]; then
   SOURCE_COMMIT=`cat filter_branch_old_master.txt`
@@ -85,13 +80,17 @@ elif [ "$COMMAND" = 'trial' ]; then
   prune-history rewrite
   prune-history clean
 
+elif [ "$COMMAND" = 'stat' ]; then
+  git count-objects -vH
+  echo "commits: $(git rev-list HEAD --count)"
+
 elif [ "$COMMAND" = 'clean' ]; then
   rm -rf .git/refs/original/
   git reflog expire --expire=now --all
   git gc --prune=now
 
   echo "After clean:"
-  repostats
+  prune-history stat
 
 else
   echo
