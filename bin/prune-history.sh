@@ -37,14 +37,16 @@ if [ "$COMMAND" = 'truncate' ]; then
 elif [ "$COMMAND" = 'rewrite' ]; then
   # Derived from http://stackoverflow.com/a/17909526/407845.
 
-  if [ -d 'src/orzo' ]; then
-    echo "Rewriting will be much more effective if you first remove the orzo subtree."
-    echo "You can add it back in afterwards."
-    exit 1
-  fi
-
   echo "Before:"
   repostats
+
+  # Record most recent commit so we can update later
+  SOURCE_COMMIT=`git rev-list -1 master`
+
+  # Remove orzo subtree
+  rm -rf src/orzo
+  git add .
+  git commit -m"Remove orzo"
 
   # Remove orzo commits
   git filter-branch -f --commit-filter '
@@ -63,8 +65,15 @@ elif [ "$COMMAND" = 'rewrite' ]; then
     cat $PWD/keep-these.txt | xargs git reset -q \$GIT_COMMIT -- \
   " --prune-empty  -- --all
 
+  echo $SOURCE_COMMIT > 'filter_branch_old_master.txt'
+
   echo "After rewrite:"
   repostats
+
+elif [ "$COMMAND" = 'update' ]; then
+  SOURCE_COMMIT=`cat filter_branch_old_master.txt`
+  git fetch origin
+  git rebase --onto HEAD $SOURCE_COMMIT origin/master
 
 elif [ "$COMMAND" = 'clean' ]; then
   rm -rf .git/refs/original/
@@ -77,7 +86,7 @@ elif [ "$COMMAND" = 'clean' ]; then
 
 else
   echo
-  echo "Usage: $0 [truncate|rewrite|clean]"
+  echo "Usage: $0 [truncate|rewrite|clean|update]"
   echo
   echo "See github.com/goodeggs/goodeggs-prune-history for details"
   echo

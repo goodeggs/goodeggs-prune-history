@@ -16,6 +16,8 @@ $ prune-history [truncate|rewrite|clean]
 
 Use `clean` after a successful `rewrite` to delete orphaned history.
 
+Use `update` after a successful `rewrite` to rebase changes made upstream after the rewrite.
+
 Use `truncate` to orphan old commits.  Only updates master.
 
 ## Contributing
