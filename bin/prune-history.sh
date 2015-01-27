@@ -8,11 +8,6 @@ repostats () {
   echo "commits: $(git rev-list HEAD --count)"
 }
 
-if [ ! -f 'package.json' ]; then
-  echo "Must be run from the root of a repo"
-  exit 1
-fi
-
 if [ "$COMMAND" = 'truncate' ]; then
   # Inspired by http://git-scm.com/2010/03/17/replace.html
   git co -b temp
@@ -36,6 +31,11 @@ if [ "$COMMAND" = 'truncate' ]; then
 
 elif [ "$COMMAND" = 'rewrite' ]; then
   # Derived from http://stackoverflow.com/a/17909526/407845.
+
+  if [ ! -f 'package.json' ]; then
+    echo "Must be run from the root of a repo"
+    exit 1
+  fi
 
   echo "Before:"
   repostats
@@ -75,11 +75,20 @@ elif [ "$COMMAND" = 'update' ]; then
   git fetch origin
   git rebase --onto HEAD $SOURCE_COMMIT origin/master
 
+elif [ "$COMMAND" = 'trial' ]; then
+  SOURCE=$2
+  DEST=$3
+
+  rm -rf $DEST
+  git clone --depth 20 file:///Users/$USER/Projects/$SOURCE $DEST
+  cd $DEST
+  prune-history rewrite
+  prune-history clean
+
 elif [ "$COMMAND" = 'clean' ]; then
   rm -rf .git/refs/original/
   git reflog expire --expire=now --all
   git gc --prune=now
-
 
   echo "After clean:"
   repostats
