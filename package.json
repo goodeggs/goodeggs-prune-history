@@ -1,6 +1,6 @@
 {
   "name": "goodeggs-prune-history",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Commands to rewrite git history preserving only current files",
   "author": "Good Eggs <open-source@goodeggs.com>",
   "repository": {
