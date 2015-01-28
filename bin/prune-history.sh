@@ -68,7 +68,18 @@ elif [ "$COMMAND" = 'rewrite' ]; then
 elif [ "$COMMAND" = 'update' ]; then
   SOURCE_COMMIT=`cat filter_branch_old_master.txt`
   git fetch origin
-  git rebase --onto HEAD $SOURCE_COMMIT origin/master
+  NEW_SOURCE_COMMIT=`git rev-list -1 origin/master`
+  CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+  git rebase --preserve-merges --onto "$CURRENT_BRANCH" $SOURCE_COMMIT origin/master
+
+  # Commit updated rebase point
+  echo $NEW_SOURCE_COMMIT > 'filter_branch_old_master.txt'
+  NEW_FILTERED_HEAD=`git rev-list -1 HEAD`
+  git commit -am"Update filtered branch" || # swallow errors in case nothing changed
+
+  # Update the filtered branch pointer
+  git checkout $CURRENT_BRANCH
+  git reset --hard $NEW_FILTERED_HEAD
 
 elif [ "$COMMAND" = 'trial' ]; then
   SOURCE=$2
