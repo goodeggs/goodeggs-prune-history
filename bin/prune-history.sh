@@ -54,10 +54,10 @@ elif [ "$COMMAND" = 'rewrite' ]; then
   ' -- --all
 
   # Remove deleted files from commits
-  git ls-files > keep-these.txt
+  git ls-files -z > keep-these.txt
   git filter-branch -f --index-filter " \
     git rm  --ignore-unmatch --cached -qr . ; \
-    cat $PWD/keep-these.txt | xargs git reset -q \$GIT_COMMIT -- \
+    cat $PWD/keep-these.txt | xargs -0 git reset -q \$GIT_COMMIT -- \
   " --prune-empty  -- --all
 
   echo $SOURCE_COMMIT > 'filter_branch_old_master.txt'
